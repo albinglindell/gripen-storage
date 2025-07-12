@@ -3,7 +3,7 @@ import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCVaBB2TcMTFlhCgo2ju9dq5SAGyAgx7Ws",
-  authDomain: "gripen-storage.netlify.app/",
+  authDomain: "gripen-storage.netlify.app",
   projectId: "gripen-storage",
   storageBucket: "gripen-storage.firebasestorage.app",
   messagingSenderId: "366298778338",
