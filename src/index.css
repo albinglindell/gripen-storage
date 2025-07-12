@@ -1,0 +1,213 @@
+/* Responsive utility classes */
+@media (max-width: 576px) {
+  .hidden-xs {
+    display: none !important;
+  }
+  
+  .search-responsive {
+    width: 100% !important;
+    min-width: 200px !important;
+  }
+  
+  .modal-responsive {
+    width: 80% !important;
+    margin: 10px !important;
+  }
+  
+  .header-responsive {
+    padding: 0 16px !important;
+    height: auto !important;
+    min-height: 72px !important;
+  }
+  
+  .content-responsive {
+    margin: 16px 8px 0 0 !important;
+    padding: 16px !important;
+  }
+  
+  .card-responsive {
+    padding: 16px !important;
+  }
+  
+  .title-responsive {
+    font-size: 18px !important;
+  }
+  
+  .flex-responsive {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+  
+  .space-responsive {
+    gap: 8px !important;
+  }
+  
+  .ant-card-body {
+    padding: 12px !important;
+  }
+  
+  .ant-list-item {
+    padding: 8px 0 !important;
+  }
+  
+  .ant-avatar {
+    flex-shrink: 0 !important;
+  }
+  
+  .ant-tag {
+    font-size: 12px !important;
+  }
+  
+  .ant-btn {
+    font-size: 12px !important;
+    padding: 4px 8px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .hidden-sm {
+    display: none !important;
+  }
+  
+  .modal-responsive-md {
+    width: 90% !important;
+  }
+  
+  .ant-space {
+    gap: 8px !important;
+  }
+  
+  .ant-layout-header {
+    padding: 0 16px !important;
+  }
+}
+
+@media (max-width: 992px) {
+  .hidden-md {
+    display: none !important;
+  }
+  
+  .ant-layout-sider {
+    position: fixed !important;
+    z-index: 1000 !important;
+    height: 100vh !important;
+  }
+}
+
+/* Mobile-first responsive grid adjustments */
+@media (max-width: 576px) {
+  .ant-list-grid .ant-col {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+  }
+  
+  .ant-row {
+    margin: 0 -8px !important;
+  }
+  
+  .ant-col {
+    padding: 0 8px !important;
+  }
+}
+
+/* Modal responsiveness */
+@media (max-width: 576px) {
+  .ant-modal {
+    margin: 10px !important;
+  }
+  
+  .ant-modal-content {
+    border-radius: 8px !important;
+  }
+  
+  .ant-modal-header {
+    padding: 16px 16px 0 !important;
+  }
+  
+  .ant-modal-body {
+    padding: 16px !important;
+  }
+  
+  .ant-modal-footer {
+    padding: 0 16px 16px !important;
+  }
+  
+  .ant-modal-title {
+    font-size: 16px !important;
+  }
+}
+
+/* Header responsiveness */
+@media (max-width: 768px) {
+  .ant-layout-header {
+    padding: 0 16px !important;
+  }
+  
+  .ant-space {
+    gap: 8px !important;
+  }
+}
+
+/* Content area responsiveness */
+@media (max-width: 576px) {
+  .ant-layout-content {
+    margin: 16px 8px 0 0 !important;
+    padding: 16px !important;
+  }
+  
+  .ant-card {
+    margin-bottom: 16px !important;
+  }
+  
+  .ant-breadcrumb {
+    font-size: 12px !important;
+  }
+  
+  .ant-statistic-title {
+    font-size: 14px !important;
+  }
+  
+  .ant-statistic-content {
+    font-size: 24px !important;
+  }
+}
+
+/* Sider responsiveness */
+@media (max-width: 992px) {
+  .ant-layout-sider {
+    position: fixed !important;
+    z-index: 1000 !important;
+    height: 100vh !important;
+  }
+}
+
+/* Button and form responsiveness */
+@media (max-width: 576px) {
+  .ant-btn {
+    height: 32px !important;
+    padding: 4px 12px !important;
+  }
+  
+  .ant-input {
+    font-size: 14px !important;
+  }
+  
+  .ant-select {
+    font-size: 14px !important;
+  }
+  
+  .ant-tag {
+    margin: 2px !important;
+  }
+}
+
+/* Image responsiveness */
+@media (max-width: 576px) {
+  .ant-image {
+    max-width: 100% !important;
+  }
+  
+  .ant-image-img {
+    object-fit: contain !important;
+  }
+} 
