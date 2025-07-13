@@ -8,6 +8,7 @@ import {
 import { ConfigProvider } from "antd";
 import { AuthProvider } from "./contexts/AuthContext";
 import LoginPage from "./components/LoginPage";
+import StartupPage from "./components/StartupPage";
 import StorageDashboard from "./components/StorageDashboard";
 import RoomDetail from "./components/RoomDetail";
 import AllBoxes from "./components/AllBoxes";
@@ -27,6 +28,14 @@ const App: React.FC = () => {
         <Router>
           <Routes>
             <Route path="/" element={<LoginPage />} />
+            <Route
+              path="/startup"
+              element={
+                <PrivateRoute>
+                  <StartupPage />
+                </PrivateRoute>
+              }
+            />
             <Route
               path="/dashboard"
               element={

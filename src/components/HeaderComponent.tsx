@@ -129,73 +129,70 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({
     }
   };
 
-  return (
-    <Header
-      className="header-responsive"
-      style={{
-        background: "#fff",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-        height: 72,
-        padding: "0 40px 0 24px",
-      }}
-    >
-      <Flex align="center">
-        {showBackButton && (
-          <Button
-            type="text"
-            icon={<ArrowLeftOutlined />}
-            onClick={onBackClick}
-            style={{ marginRight: "16px" }}
-          >
-            Back
-          </Button>
-        )}
-        <Title level={4} style={{ margin: 0 }} className="title-responsive">
-          {title}
-        </Title>
-      </Flex>
-
-      <Flex align="center" className="space-responsive">
-        {searchPlaceholder && onSearch && (
-          <AutoComplete
-            value={searchValue}
-            options={searchOptions}
-            onSearch={onSearchHandler}
-            onSelect={onSelectHandler}
-            placeholder={searchPlaceholder}
-            style={{ width: 250 }}
-            className="search-responsive"
-            notFoundContent="No matches found"
-          >
-            <Input
-              prefix={<SearchOutlined />}
-              placeholder={searchPlaceholder}
-            />
-          </AutoComplete>
-        )}
-        {extraContent}
-        <Button
-          type="text"
-          icon={<BellOutlined />}
-          size="large"
-          aria-label="Notifications"
-          tabIndex={0}
-          className="hidden-xs"
+  const searchBar =
+    searchPlaceholder && onSearch ? (
+      <AutoComplete
+        value={searchValue}
+        options={searchOptions}
+        onSearch={onSearchHandler}
+        onSelect={onSelectHandler}
+        style={{ width: 250 }}
+        className="search-responsive"
+        notFoundContent="No matches found"
+      >
+        <Input
+          style={{ fontSize: "16px" }}
+          prefix={<SearchOutlined />}
+          placeholder={searchPlaceholder}
         />
-        <Space align="center" className="hidden-xs">
-          <Avatar icon={<UserOutlined />} />
-          <Flex vertical>
-            <Text strong>{currentUser?.email}</Text>
-            <Text type="secondary" style={{ fontSize: "12px" }}>
-              {currentUser?.displayName || "User"}
-            </Text>
-          </Flex>
-        </Space>
-      </Flex>
-    </Header>
+      </AutoComplete>
+    ) : null;
+
+  return (
+    <>
+      <Header
+        className="header-responsive"
+        style={{
+          background: "#fff",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+          height: 72,
+          padding: "0 40px 0 24px",
+        }}
+      >
+        <Flex align="center">
+          {showBackButton && (
+            <Button
+              type="text"
+              icon={<ArrowLeftOutlined />}
+              onClick={onBackClick}
+              style={{ marginRight: "16px" }}
+            >
+              Back
+            </Button>
+          )}
+          <Title level={4} style={{ margin: 0 }} className="title-responsive">
+            {title}
+          </Title>
+        </Flex>
+
+        <Flex align="center" className="space-responsive" gap={16}>
+          <div className="hidden-xs">{searchBar}</div>
+          <Space align="center" className="hidden-xs">
+            <Avatar icon={<UserOutlined />} />
+            <Flex vertical>
+              <Text strong>{currentUser?.email}</Text>
+              <Text type="secondary" style={{ fontSize: "12px" }}>
+                {currentUser?.displayName || "User"}
+              </Text>
+            </Flex>
+          </Space>
+        </Flex>
+      </Header>
+      <Flex className="mobile-search-container">{searchBar}</Flex>
+    </>
   );
 };
 

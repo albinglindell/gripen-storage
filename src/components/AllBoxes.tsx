@@ -20,7 +20,7 @@ import { getItemCount, getCategoryCount, filterBoxes } from "../utils/boxUtils";
 import { MOCK_ROOM_NAMES, MOCK_BOXES } from "../constants/mockData";
 
 const { Content } = Layout;
-const { Title } = Typography;
+const { Title, Text } = Typography;
 const { Option } = Select;
 
 const AllBoxes: React.FC = () => {
@@ -135,14 +135,27 @@ const AllBoxes: React.FC = () => {
                 alignItems: "center",
                 marginBottom: "24px",
               }}
-            >
-              <Breadcrumb.Item>
-                <Button type="link" onClick={onBackToDashboardHandler}>
-                  Dashboard
-                </Button>
-              </Breadcrumb.Item>
-              <Breadcrumb.Item>All Boxes</Breadcrumb.Item>
-            </Breadcrumb>
+              items={[
+                {
+                  title: (
+                    <Button type="link" onClick={onBackToDashboardHandler}>
+                      Dashboard
+                    </Button>
+                  ),
+                },
+                {
+                  title: (
+                    <Text
+                      style={{
+                        fontSize: "12px",
+                      }}
+                    >
+                      All Boxes
+                    </Text>
+                  ),
+                },
+              ]}
+            />
 
             <div
               style={{

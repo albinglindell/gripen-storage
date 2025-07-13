@@ -33,7 +33,7 @@ const BoxCard: React.FC<BoxCardProps> = ({
     <Card
       hoverable
       onClick={onCardClickHandler}
-      style={{ cursor: "pointer" }}
+      style={{ cursor: "pointer", width: "100%" }}
       bodyStyle={{ padding: "16px" }}
       actions={[
         <Button

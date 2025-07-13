@@ -9,9 +9,31 @@ import {
   signInWithPopup,
 } from "firebase/auth";
 import { auth } from "../firebase/config";
-import { AuthContextType, User } from "../types/auth";
+import { AuthContextType, User, UserProfile } from "../types/auth";
+import { getUserProfile } from "../services/firebaseService";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+const STORAGE_KEY = "gripen_auth_user";
+
+const saveUserToStorage = (user: User | null): void => {
+  if (user) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+  } else {
+    localStorage.removeItem(STORAGE_KEY);
+  }
+};
+
+const loadUserFromStorage = (): User | null => {
+  try {
+    const storedUser = localStorage.getItem(STORAGE_KEY);
+    return storedUser ? JSON.parse(storedUser) : null;
+  } catch (error) {
+    console.error("Error loading user from localStorage:", error);
+    localStorage.removeItem(STORAGE_KEY);
+    return null;
+  }
+};
 
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
@@ -26,8 +48,21 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(() =>
+    loadUserFromStorage()
+  );
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const refreshProfile = async (uid: string) => {
+    try {
+      const profile = await getUserProfile(uid);
+      setUserProfile(profile);
+    } catch (error) {
+      console.error("Error refreshing user profile:", error);
+      setUserProfile(null);
+    }
+  };
 
   const signup = async (email: string, password: string): Promise<void> => {
     await createUserWithEmailAndPassword(auth, email, password);
@@ -41,8 +76,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
-      // If the pop-up appears and the user signs in successfully,
-      // the onAuthStateChanged listener in your useEffect will handle updating currentUser.
       console.log(
         "Google sign-in pop-up attempted (or successful if no error)!"
       );
@@ -70,15 +103,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(
       auth,
-      (user: FirebaseUser | null) => {
+      async (user: FirebaseUser | null) => {
         if (user) {
-          setCurrentUser({
+          const userData: User = {
             uid: user.uid,
             email: user.email,
             displayName: user.displayName,
-          });
+          };
+          setCurrentUser(userData);
+          saveUserToStorage(userData);
+
+          // Fetch user profile from Firestore
+          await refreshProfile(user.uid);
         } else {
           setCurrentUser(null);
+          setUserProfile(null);
+          saveUserToStorage(null);
         }
         setLoading(false);
       }
@@ -87,13 +127,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return unsubscribe;
   }, []);
 
+  const hasProfile = userProfile !== null;
+
   const value: AuthContextType = {
     currentUser,
+    userProfile,
     login,
     signup,
     loginWithGoogle,
     logout,
     loading,
+    hasProfile,
+    refreshProfile,
   };
 
   return (

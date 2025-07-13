@@ -105,14 +105,21 @@ const RoomDetail: React.FC = () => {
             style={{ padding: 24, background: "#fff", borderRadius: "8px" }}
             className="card-responsive"
           >
-            <Breadcrumb style={{ marginBottom: "24px" }}>
-              <Breadcrumb.Item>
-                <Button type="link" onClick={onBackToDashboardHandler}>
-                  Dashboard
-                </Button>
-              </Breadcrumb.Item>
-              <Breadcrumb.Item>{roomName}</Breadcrumb.Item>
-            </Breadcrumb>
+            <Breadcrumb
+              style={{ marginBottom: "24px" }}
+              items={[
+                {
+                  title: (
+                    <Button type="link" onClick={onBackToDashboardHandler}>
+                      Dashboard
+                    </Button>
+                  ),
+                },
+                {
+                  title: roomName,
+                },
+              ]}
+            />
 
             <div
               style={{

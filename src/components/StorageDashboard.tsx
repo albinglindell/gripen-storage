@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Layout,
   Button,
@@ -10,6 +10,8 @@ import {
   List,
   Tag,
   Statistic,
+  message,
+  Spin,
 } from "antd";
 import {
   FolderOutlined,
@@ -21,7 +23,8 @@ import {
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { Room, StorageStats } from "../types/storage";
+import { Room } from "../types/auth";
+import { getUserRooms } from "../services/firebaseService";
 import NavigationMenu from "./NavigationMenu";
 import HeaderComponent from "./HeaderComponent";
 
@@ -29,10 +32,12 @@ const { Content } = Layout;
 const { Title, Text } = Typography;
 
 const StorageDashboard: React.FC = () => {
-  const { currentUser, logout } = useAuth();
+  const { currentUser, logout, userProfile } = useAuth();
   const navigate = useNavigate();
   const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
   const [selectedMenuKey, setSelectedMenuKey] = useState("dashboard");
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const onLogoutHandler = async () => {
     try {
@@ -48,43 +53,23 @@ const StorageDashboard: React.FC = () => {
     navigate(`/dashboard/room/${roomId}`);
   };
 
-  const mockRooms: Room[] = [
-    {
-      id: "1",
-      name: "Living Room",
-      description: "Main living area",
-      boxCount: 12,
-    },
-    {
-      id: "2",
-      name: "Bedroom",
-      description: "Master bedroom",
-      boxCount: 8,
-    },
-    {
-      id: "3",
-      name: "Kitchen",
-      description: "Kitchen and dining area",
-      boxCount: 5,
-    },
-    {
-      id: "4",
-      name: "Basement",
-      description: "Storage basement",
-      boxCount: 25,
-    },
-    {
-      id: "5",
-      name: "Attic",
-      description: "Attic storage",
-      boxCount: 15,
-    },
-  ];
+  useEffect(() => {
+    const fetchRooms = async () => {
+      if (!currentUser) return;
+      setLoading(true);
+      try {
+        const userRooms = await getUserRooms(currentUser.uid);
+        setRooms(userRooms);
+      } catch (error) {
+        message.error("Failed to load rooms. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRooms();
+  }, [currentUser]);
 
-  const mockStats: StorageStats = {
-    totalRooms: 5,
-    totalBoxes: 65,
-  };
+  const totalBoxes = rooms.reduce((sum, room) => sum + room.boxCount, 0);
 
   const getRoomIcon = (roomName: string) => {
     switch (roomName.toLowerCase()) {
@@ -102,6 +87,31 @@ const StorageDashboard: React.FC = () => {
         return <CoffeeOutlined />;
     }
   };
+
+  if (loading) {
+    return (
+      <Layout style={{ minHeight: "100vh" }}>
+        <NavigationMenu
+          selectedKey={selectedMenuKey}
+          onLogout={onLogoutHandler}
+        />
+        <Layout>
+          <HeaderComponent title="Dashboard" currentUser={currentUser} />
+          <Content
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              background: "#f0f2f5",
+              minHeight: "calc(100vh - 72px)",
+            }}
+          >
+            <Spin size="large" />
+          </Content>
+        </Layout>
+      </Layout>
+    );
+  }
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
@@ -146,12 +156,20 @@ const StorageDashboard: React.FC = () => {
               </Button>
             </div>
 
+            {userProfile && (
+              <div style={{ marginBottom: "24px" }}>
+                <Text type="secondary">
+                  <strong>Address:</strong> {userProfile.address}
+                </Text>
+              </div>
+            )}
+
             <Row gutter={[16, 16]} style={{ marginBottom: "32px" }}>
               <Col xs={24} sm={8}>
                 <Card>
                   <Statistic
                     title="Total Rooms"
-                    value={mockStats.totalRooms}
+                    value={rooms.length}
                     prefix={<FolderOutlined />}
                     valueStyle={{ color: "#3f8600" }}
                   />
@@ -161,7 +179,7 @@ const StorageDashboard: React.FC = () => {
                 <Card>
                   <Statistic
                     title="Total Boxes"
-                    value={mockStats.totalBoxes}
+                    value={totalBoxes}
                     prefix={<InboxOutlined />}
                     valueStyle={{ color: "#1890ff" }}
                   />
@@ -173,64 +191,88 @@ const StorageDashboard: React.FC = () => {
               Rooms
             </Title>
 
-            <List
-              grid={{ gutter: 16, xs: 1, sm: 2, md: 3, lg: 3, xl: 4, xxl: 4 }}
-              dataSource={mockRooms}
-              renderItem={(room) => (
-                <List.Item>
-                  <Card
-                    hoverable
-                    onClick={() => onRoomSelectHandler(room.id)}
-                    style={{ cursor: "pointer" }}
-                    bodyStyle={{ padding: "16px" }}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        marginBottom: "8px",
-                      }}
+            {rooms.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "40px" }}>
+                <Text type="secondary">
+                  No rooms found. Add your first room to get started!
+                </Text>
+                <br />
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  onClick={() => navigate("/dashboard/add-room")}
+                  style={{ marginTop: "16px" }}
+                >
+                  Add Your First Room
+                </Button>
+              </div>
+            ) : (
+              <List
+                grid={{ gutter: 16, xs: 1, sm: 2, md: 3, lg: 3, xl: 4, xxl: 4 }}
+                dataSource={rooms}
+                renderItem={(room) => (
+                  <List.Item>
+                    <Card
+                      hoverable
+                      onClick={() => onRoomSelectHandler(room.id)}
+                      style={{ cursor: "pointer" }}
+                      bodyStyle={{ padding: "16px" }}
                     >
-                      <Avatar
-                        icon={getRoomIcon(room.name)}
+                      <div
                         style={{
-                          backgroundColor: "#1890ff",
-                          marginRight: "12px",
-                        }}
-                      />
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <Text strong style={{ fontSize: "16px" }}>
-                          {room.name}
-                        </Text>
-                        <br />
-                        <Text type="secondary" style={{ fontSize: "12px" }}>
-                          {room.description}
-                        </Text>
-                      </div>
-                    </div>
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Tag color="blue">{room.boxCount} boxes</Tag>
-                      <Button
-                        type="link"
-                        size="small"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onRoomSelectHandler(room.id);
+                          display: "flex",
+                          alignItems: "center",
+                          marginBottom: "8px",
                         }}
                       >
-                        View Boxes
-                      </Button>
-                    </div>
-                  </Card>
-                </List.Item>
-              )}
-            />
+                        <Avatar
+                          icon={getRoomIcon(room.name)}
+                          style={{
+                            backgroundColor: "#1890ff",
+                            marginRight: "12px",
+                          }}
+                        />
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <Text strong style={{ fontSize: "16px" }}>
+                            {room.name}
+                          </Text>
+                          {room.description && (
+                            <>
+                              <br />
+                              <Text
+                                type="secondary"
+                                style={{ fontSize: "12px" }}
+                              >
+                                {room.description}
+                              </Text>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Tag color="blue">{room.boxCount} boxes</Tag>
+                        <Button
+                          type="link"
+                          size="small"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onRoomSelectHandler(room.id);
+                          }}
+                        >
+                          View Boxes
+                        </Button>
+                      </div>
+                    </Card>
+                  </List.Item>
+                )}
+              />
+            )}
           </div>
         </Content>
       </Layout>

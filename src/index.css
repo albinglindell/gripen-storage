@@ -10,7 +10,7 @@
   }
   
   .modal-responsive {
-    width: 80% !important;
+    width: 90% !important;
     margin: 10px !important;
   }
   
@@ -61,6 +61,28 @@
   .ant-btn {
     font-size: 12px !important;
     padding: 4px 8px !important;
+  }
+  
+  .mobile-search-container {
+    display: flex !important;
+    align-items: center !important; 
+    justify-content: center !important;
+    padding: 16px !important;
+    background: #fff !important;
+    border-bottom: 1px solid #f0f0f0 !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1) !important;
+  }
+  
+  .mobile-search-container .search-responsive {
+    width: 80% !important;
+    max-width: none !important;
+  }
+}
+
+/* Desktop styles - hide mobile search container */
+@media (min-width: 577px) {
+  .mobile-search-container {
+    display: none !important;
   }
 }
 
