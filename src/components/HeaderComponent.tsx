@@ -31,6 +31,7 @@ interface HeaderComponentProps {
   extraContent?: React.ReactNode;
   boxes?: CardboardBox[];
   roomNames?: { [key: string]: string };
+  style?: React.CSSProperties;
 }
 
 const HeaderComponent: React.FC<HeaderComponentProps> = ({
@@ -43,6 +44,7 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({
   extraContent,
   boxes = [],
   roomNames = {},
+  style,
 }) => {
   const [searchValue, setSearchValue] = useState("");
 
@@ -160,6 +162,7 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({
           boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
           height: 72,
           padding: "0 40px 0 24px",
+          ...style,
         }}
       >
         <Flex align="center">
@@ -191,7 +194,9 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({
           </Space>
         </Flex>
       </Header>
-      <Flex className="mobile-search-container">{searchBar}</Flex>
+      {searchBar && (
+        <Flex className="mobile-search-container">{searchBar}</Flex>
+      )}
     </>
   );
 };

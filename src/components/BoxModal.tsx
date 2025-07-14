@@ -27,6 +27,14 @@ interface BoxModalProps {
   getCategoryCount: (box: CardboardBox) => number;
 }
 
+function toDate(val: any): Date {
+  if (!val) return new Date();
+  if (val instanceof Date) return val;
+  if (typeof val === "object" && val.seconds)
+    return new Date(val.seconds * 1000);
+  return new Date(val);
+}
+
 const BoxModal: React.FC<BoxModalProps> = ({
   box,
   isVisible,
@@ -66,23 +74,21 @@ const BoxModal: React.FC<BoxModalProps> = ({
       open={isVisible}
       onCancel={onClose}
       footer={[
-        <Flex align="center" justify="center" gap={8}>
-          <Button key="close" onClick={onClose}>
-            Close
-          </Button>
-          <Button key="edit" onClick={onEdit}>
-            Edit Box
-          </Button>
-          <Button
-            key="openBox"
-            type="primary"
-            icon={<PictureOutlined />}
-            onClick={onOpenImage}
-            disabled={!box.imageUrl}
-          >
-            Open Box
-          </Button>
-        </Flex>,
+        <Button key="close" onClick={onClose}>
+          Close
+        </Button>,
+        <Button key="edit" type="default" onClick={onEdit}>
+          Edit Box
+        </Button>,
+        <Button
+          key="openBox"
+          type="primary"
+          icon={<PictureOutlined />}
+          onClick={onOpenImage}
+          disabled={!box.imageUrl || box.imageUrl.trim() === ""}
+        >
+          Open Box
+        </Button>,
       ]}
       width={700}
       centered
@@ -123,7 +129,7 @@ const BoxModal: React.FC<BoxModalProps> = ({
                 <div>
                   <Text strong>Created:</Text>
                   <br />
-                  <Text>{box.createdAt.toLocaleDateString()}</Text>
+                  <Text>{toDate(box.createdAt).toLocaleDateString()}</Text>
                 </div>
               </div>
             </Card>

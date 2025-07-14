@@ -22,14 +22,8 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
       case "dashboard":
         navigate("/dashboard");
         break;
-      case "rooms":
-        navigate("/dashboard");
-        break;
       case "boxes":
         navigate("/dashboard/all-boxes");
-        break;
-      case "settings":
-        navigate("/dashboard/settings");
         break;
       case "logout":
         onLogout();
@@ -46,19 +40,9 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
       label: "Dashboard",
     },
     {
-      key: "rooms",
-      icon: <span>📁</span>,
-      label: "Rooms",
-    },
-    {
       key: "boxes",
       icon: <span>📦</span>,
       label: "All Boxes",
-    },
-    {
-      key: "settings",
-      icon: <span>⚙️</span>,
-      label: "Settings",
     },
   ];
 
@@ -77,6 +61,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
       style={{
         background: "#001529",
         position: "relative",
+        height: "100svh",
       }}
     >
       <div
@@ -101,7 +86,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
         onClick={onMenuClickHandler}
         style={{
           borderRight: 0,
-          height: "calc(100vh - 64px - 50px)",
+          height: "calc(100svh - 64px - 50px)",
           overflowY: "auto",
         }}
       />

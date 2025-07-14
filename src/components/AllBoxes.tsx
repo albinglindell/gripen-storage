@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Layout,
   Button,
@@ -7,6 +7,8 @@ import {
   Breadcrumb,
   Select,
   Flex,
+  Spin,
+  message,
 } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
@@ -17,7 +19,7 @@ import BoxCard from "./BoxCard";
 import BoxModal from "./BoxModal";
 import ImageModal from "./ImageModal";
 import { getItemCount, getCategoryCount, filterBoxes } from "../utils/boxUtils";
-import { MOCK_ROOM_NAMES, MOCK_BOXES } from "../constants/mockData";
+import { getUserRooms, getAllBoxesForUser } from "../services/firebaseService";
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
@@ -32,6 +34,37 @@ const AllBoxes: React.FC = () => {
   const [selectedMenuKey, setSelectedMenuKey] = useState("boxes");
   const [roomFilter, setRoomFilter] = useState<string>("all");
   const [isImageModalVisible, setIsImageModalVisible] = useState(false);
+  const [boxes, setBoxes] = useState<CardboardBox[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [rooms, setRooms] = useState<{ id: string; name: string }[]>([]);
+
+  // Create roomNames mapping for search
+  const roomNames = rooms.reduce((acc, room) => {
+    acc[room.id] = room.name;
+    return acc;
+  }, {} as { [key: string]: string });
+
+  useEffect(() => {
+    const fetchRoomsAndBoxes = async () => {
+      if (!currentUser) return;
+      setLoading(true);
+      try {
+        const userRooms = await getUserRooms(currentUser.uid);
+        setRooms(userRooms.map((r) => ({ id: r.id, name: r.name })));
+        const userBoxes = await getAllBoxesForUser(currentUser.uid);
+        setBoxes(userBoxes);
+      } catch (error) {
+        console.error("Error fetching boxes or rooms:", error);
+        message.error("Failed to load boxes or rooms. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRoomsAndBoxes();
+  }, [currentUser]);
+
+  // Filter boxes by selected room and search term
+  const filteredBoxes = filterBoxes(boxes, searchTerm, roomFilter, roomNames);
 
   const onLogoutHandler = async () => {
     try {
@@ -73,13 +106,6 @@ const AllBoxes: React.FC = () => {
     navigate(`/dashboard/box/${selectedBox?.id}/edit`);
   };
 
-  const filteredBoxes = filterBoxes(
-    MOCK_BOXES,
-    searchTerm,
-    roomFilter,
-    MOCK_ROOM_NAMES
-  );
-
   const roomFilterOptions = (
     <Select
       defaultValue="all"
@@ -88,11 +114,11 @@ const AllBoxes: React.FC = () => {
       className="hidden-xs"
     >
       <Option value="all">All Rooms</Option>
-      <Option value="1">Living Room</Option>
-      <Option value="2">Bedroom</Option>
-      <Option value="3">Kitchen</Option>
-      <Option value="4">Basement</Option>
-      <Option value="5">Attic</Option>
+      {rooms.map((room) => (
+        <Option key={room.id} value={room.id}>
+          {room.name}
+        </Option>
+      ))}
     </Select>
   );
 
@@ -107,13 +133,19 @@ const AllBoxes: React.FC = () => {
         <HeaderComponent
           title="All Boxes"
           currentUser={currentUser}
+          style={{
+            position: "sticky",
+            top: 0,
+            zIndex: 100,
+            background: "#fff",
+          }}
           showBackButton
           onBackClick={onBackToDashboardHandler}
           searchPlaceholder="Search boxes..."
           onSearch={onSearchHandler}
           extraContent={roomFilterOptions}
-          boxes={MOCK_BOXES}
-          roomNames={MOCK_ROOM_NAMES}
+          boxes={boxes}
+          roomNames={roomNames}
         />
 
         <Content
@@ -122,7 +154,6 @@ const AllBoxes: React.FC = () => {
             margin: "24px 16px 0 0",
             padding: 24,
             background: "#f0f2f5",
-            minHeight: "calc(100vh - 72px)",
           }}
         >
           <div
@@ -178,11 +209,11 @@ const AllBoxes: React.FC = () => {
                 placeholder="Filter by room"
               >
                 <Option value="all">All Rooms</Option>
-                <Option value="1">Living Room</Option>
-                <Option value="2">Bedroom</Option>
-                <Option value="3">Kitchen</Option>
-                <Option value="4">Basement</Option>
-                <Option value="5">Attic</Option>
+                {rooms.map((room) => (
+                  <Option key={room.id} value={room.id}>
+                    {room.name}
+                  </Option>
+                ))}
               </Select>
             </div>
 
@@ -191,15 +222,12 @@ const AllBoxes: React.FC = () => {
               dataSource={filteredBoxes}
               renderItem={(box) => (
                 <List.Item>
-                  <Flex justify="center">
-                    <BoxCard
-                      box={box}
-                      roomName={MOCK_ROOM_NAMES[box.roomId]}
-                      onBoxClick={onBoxClickHandler}
-                      getItemCount={getItemCount}
-                      getCategoryCount={getCategoryCount}
-                    />
-                  </Flex>
+                  <BoxCard
+                    box={box}
+                    onBoxClick={onBoxClickHandler}
+                    getItemCount={getItemCount}
+                    getCategoryCount={getCategoryCount}
+                  />
                 </List.Item>
               )}
             />
@@ -207,9 +235,7 @@ const AllBoxes: React.FC = () => {
             <BoxModal
               box={selectedBox}
               isVisible={isModalVisible}
-              roomName={
-                selectedBox ? MOCK_ROOM_NAMES[selectedBox.roomId] : undefined
-              }
+              roomName={selectedBox ? roomNames[selectedBox.roomId] : undefined}
               onClose={onModalCloseHandler}
               onOpenImage={onImageModalOpenHandler}
               onEdit={onEditBoxHandler}

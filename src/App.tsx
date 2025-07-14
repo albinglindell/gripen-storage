@@ -12,6 +12,7 @@ import StartupPage from "./components/StartupPage";
 import StorageDashboard from "./components/StorageDashboard";
 import RoomDetail from "./components/RoomDetail";
 import AllBoxes from "./components/AllBoxes";
+import EditBox from "./components/EditBox";
 import PrivateRoute from "./components/PrivateRoute";
 
 const App: React.FC = () => {
@@ -57,6 +58,14 @@ const App: React.FC = () => {
               element={
                 <PrivateRoute>
                   <AllBoxes />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/dashboard/box/:boxId/edit"
+              element={
+                <PrivateRoute>
+                  <EditBox />
                 </PrivateRoute>
               }
             />
