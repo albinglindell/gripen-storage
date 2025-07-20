@@ -23,9 +23,8 @@ import {
   updateBox,
   getUserRooms,
 } from "../services/firebaseService";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-
-const storage = getStorage();
+import { uploadImage } from "../services/cloudinaryService";
+import { getThumbnailUrl } from "../utils/imageUtils";
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -58,10 +57,21 @@ const EditBox: React.FC = () => {
   };
 
   const onBoxImageChange = (info: any) => {
+    console.log("onBoxImageChange called with info:", info);
+    console.log("info.file:", info.file);
+    console.log("info.file.originFileObj:", info.file?.originFileObj);
+
     if (info.file.status === "removed") {
       setBoxImageFile(null);
+      console.log("File removed, boxImageFile set to null");
     } else if (info.file.originFileObj) {
       setBoxImageFile(info.file.originFileObj);
+      console.log("File set to:", info.file.originFileObj);
+    } else if (info.file && info.file instanceof File) {
+      setBoxImageFile(info.file);
+      console.log("File set directly from info.file:", info.file);
+    } else {
+      console.log("No valid file found in file info");
     }
   };
 
@@ -92,13 +102,13 @@ const EditBox: React.FC = () => {
 
     try {
       if (boxImageFile) {
-        const storageRef = ref(
-          storage,
-          `box-images/${currentUser.uid}/${Date.now()}_${boxImageFile.name}`
+        const uploadResult = await uploadImage(
+          boxImageFile,
+          `box-images/${currentUser.uid}`
         );
-        await uploadBytes(storageRef, boxImageFile);
-        imageUrl = await getDownloadURL(storageRef);
+        imageUrl = uploadResult.url;
       }
+      console.log("boxImageFile:", boxImageFile);
 
       await updateBox(boxId, {
         boxNumber: values.boxNumber,
@@ -317,7 +327,6 @@ const EditBox: React.FC = () => {
                   maxCount={1}
                   onChange={onBoxImageChange}
                   onRemove={() => setBoxImageFile(null)}
-                  accept="image/*"
                   listType="picture"
                 >
                   <Button icon={<UploadOutlined />}>Upload New Image</Button>
@@ -325,7 +334,7 @@ const EditBox: React.FC = () => {
                 {box.imageUrl && !boxImageFile && (
                   <div style={{ marginTop: 8 }}>
                     <img
-                      src={box.imageUrl}
+                      src={getThumbnailUrl(box.imageUrl, 200)}
                       alt="Current box image"
                       style={{ maxWidth: "200px", maxHeight: "200px" }}
                     />

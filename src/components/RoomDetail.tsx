@@ -30,9 +30,7 @@ import {
   getBoxesForRoom,
   deleteBox,
 } from "../services/firebaseService";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-
-const storage = getStorage();
+import { uploadImage } from "../services/cloudinaryService";
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -160,12 +158,11 @@ const RoomDetail: React.FC = () => {
     let imageUrl = "";
     try {
       if (boxImageFile) {
-        const storageRef = ref(
-          storage,
-          `box-images/${currentUser.uid}/${Date.now()}_${boxImageFile.name}`
+        const uploadResult = await uploadImage(
+          boxImageFile,
+          `box-images/${currentUser.uid}`
         );
-        await uploadBytes(storageRef, boxImageFile);
-        imageUrl = await getDownloadURL(storageRef);
+        imageUrl = uploadResult.url;
       }
       await addBox(currentUser.uid, roomId, {
         boxNumber: values.boxNumber,

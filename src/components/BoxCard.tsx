@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, Avatar, Tag, Badge, Button, Typography, Flex } from "antd";
+import { Card, Avatar, Tag, Button, Typography, Flex } from "antd";
 import { InboxOutlined, EyeOutlined, DeleteOutlined } from "@ant-design/icons";
 import { CardboardBox } from "../types/storage";
 
@@ -12,14 +12,6 @@ interface BoxCardProps {
   getItemCount: (box: CardboardBox) => number;
   getCategoryCount: (box: CardboardBox) => number;
   onDeleteBox?: (box: CardboardBox) => void;
-}
-
-function toDate(val: any): Date {
-  if (!val) return new Date();
-  if (val instanceof Date) return val;
-  if (typeof val === "object" && val.seconds)
-    return new Date(val.seconds * 1000);
-  return new Date(val);
 }
 
 const BoxCard: React.FC<BoxCardProps> = ({
