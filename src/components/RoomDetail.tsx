@@ -128,6 +128,8 @@ const RoomDetail: React.FC = () => {
       setBoxImageFile(null);
     } else if (info.file.originFileObj) {
       setBoxImageFile(info.file.originFileObj);
+    } else if (info.file && info.file instanceof File) {
+      setBoxImageFile(info.file);
     }
   };
 
